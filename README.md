@@ -1,29 +1,25 @@
-# bbs
+##2024 表白墙网站##
 
-This template should help get you started developing with Vue 3 in Vite.
+在学生论坛的框架下，加以改造升级，形成一个完整的表白墙网站。
 
-## Recommended IDE Setup
+基础要求：
+'''
+1. 登陆与注册功能,前端要求实现一段时间内保留登录状态，后端要求使用常见的鉴权方式。
+2. 实现个人页面,能够修改昵称和设置自己上传的图片作为头像,账号,登陆密码等个人信息。
+3.可以发布一条想对别人说的表白，且能够选择是否匿名以及是否公开。
+4.能够管理自己的表白（修改、删除等）
+5. 实现社区功能,能看到别人发的表白(注意实名和匿名)
+6.实现拉黑功能(看不到拉黑人（用户）所发的表白)
+7.使用github进行版本管理,采用合理、规范的目录结构,使用易读、标准的变量命名形式
+8. 完成前后端联调（上云），可以用网页展示项目的全部效果
+'''
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
+提高要求:
+'''
+1. 实现表白消息的评论和回复评论的功能
+2. 可以自定义全局字体大小和主题色
+3.后端成功部署到云端服务器，可以公网访问网站服务
+4.后端进行使用全局错误统一处理中间件，并有设置统一错误码
+5. 实现页面加载加速（前端cdn或后端缓存）
+6. 可以发送自定义定时表白消息（时间戳->）	
+'''
