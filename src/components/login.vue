@@ -18,6 +18,8 @@
                 alert('登录成功');
                 localStorage.setItem("user_id",res.data.data.user_id);
                 localStorage.setItem("user_type",res.data.data.user_type);
+                localStorage.setItem("user_account",stuIdInput.value); // @@@@@
+                localStorage.setItem("user_name",res.data.data.username); // @@@@@ 此处应接收用户名
                 if (res.data.data.user_type===1) {
                     router.replace('/student');
                 } 

@@ -1,12 +1,20 @@
 <script setup>
 import axios from "axios";
 import { ref,onMounted,computed } from "vue"
+import { useRouter } from 'vue-router'
+
+        const router = useRouter();
         const newPostContent = ref('');
         const posts = ref([]);
         const reports = ref([]);
         const showing = ref(0);
         const MyUserId = ref(localStorage.getItem("user_id"));
         const MyUserType = ref(localStorage.getItem("user_type")==2 ? "管理员" : "学生");
+        const MyUserName = ref(localStorage.getItem("user_name")); // @@@@@ 如何获取用户昵称
+        const MyUserAccount = ref(localStorage.getItem("user_account")); //@@@@@ 获取用户账号
+        const oldPassword = ref("");
+        const newPassword = ref("");
+        const newPassword2 = ref("");
 
         onMounted(()=>{
           getPost();
@@ -126,6 +134,63 @@ import { ref,onMounted,computed } from "vue"
           }).catch((err) => { alert(err); })
         };
 
+        function editName () {
+          const newName = prompt('新昵称为:');
+          if (newName !== null) {
+            if (newName.trim() === MyUserName.value.trim()) {
+              alert('新昵称不可与旧昵称相同');
+              return
+            }
+            if (newName.trim() === '') return;
+            axios.put("http://127.0.0.1:8080/api/user/revise-name", {
+                "account": MyUserAccount.value,
+                "name": newName
+            }).then((res)=>{
+              if (res.data.code === 200) {
+                    alert("修改成功");
+                }
+                else {
+                    alert(res.data.msg);
+                };
+            }).catch((err)=>{ alert(err); })
+          }
+        };
+
+        function editPassword () {
+          if (oldPassword.value === ''||newPassword.value === ''||newPassword2.value === '') {
+            alert('请输入完整信息');
+            return
+          }
+          if (newPassword.value !== newPassword2.value) {
+            alert('两次输入的新密码不一致，请重新输入！');
+            newPassword.value = '';
+            newPassword2.value = '';
+            return
+          }
+          if (newPassword.value.length < 8 || newPassword.value.length > 16) {
+            alert('密码长度必须在8到16位之间，请重新输入！');
+            return
+          }
+          if (oldPassword.value === newPassword.value) {
+            alert('新密码不可与旧密码相同');
+            return
+          }
+          let data = {
+            "account": MyUserAccount.value, 
+            "new_password": newPassword.value,
+            "old_password": oldPassword.value
+          }
+          axios.put("http://127.0.0.1:8080/api/user/revise-password", data).then((res) => {
+            if (res.data.code === 200 ) {
+                alert('修改密码成功，请重新登录');
+                router.replace('/')
+            }
+            else {
+                alert(res.data.msg);
+            };
+          }).catch((err) => { alert(err);})            
+          data
+        }
 </script>
 
 <template>
@@ -150,7 +215,9 @@ import { ref,onMounted,computed } from "vue"
         </div>
         <ul class="sub-menu blank">
           <li><a class="link-name">用户信息</a></li>
-          <a @click="()=>{showing=3}">我的</a>
+          <!-- <a @click="()=>{showing=3}">我的(此页面暂时弃用)</a> --> 
+          <a @click="()=>{showing=4}">个人资料</a>
+          <a @click="()=>{showing=5}">修改密码</a>
         </ul>
       </li>
 
@@ -240,6 +307,59 @@ import { ref,onMounted,computed } from "vue"
       <span class="message">我的ID：{{ MyUserId }}</span>
       <br>
       <span class="message">我是：{{ MyUserType }}</span>
+    </div>
+  </div>
+  
+  <div class="container2" v-if="showing===4">
+    <h2 class="title">个人资料</h2>
+    <div class="package2">
+      <div>
+        <div class="infoPage">
+          <label class="message1" >　　头像　</label>
+          <img class="avatar" src="../assets/example.jpg" /> <!-- 头像图片显示占位 -->
+          <button class="editButton" >修改</button>
+        </div>
+        <div>
+          <form @submit.prevent="editName">
+            <label class="message1" >　　昵称：</label>
+            <input class="box" type="text" v-model="MyUserName" readonly/>
+            <button class="editButton" type="submit">修改</button>
+          </form>
+        </div>
+        <div>
+          <label class="message1" >　　　ID：</label>
+          <input class="fixedBox" type="text" v-model="MyUserId" readonly />
+        </div>
+        <div>
+          <label class="message1" >　　身份：</label>
+          <input class="fixedBox" type="text" v-model="MyUserType" readonly />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container1" v-if="showing===5">
+    <h2 class="title">修改密码</h2>
+    <div class="package3">
+      <form id="editPwdForm" @submit.prevent="editPassword">
+        <div >
+          <label class="message1" >　　我的ID：</label>
+          <input class="fixedBox" type="text" v-model="MyUserId" readonly/>
+        </div>
+        <div>
+          <label class="message1" >　　旧密码：</label>
+          <input class="box" type="password" v-model="oldPassword" />
+        </div>
+        <div>
+          <label class="message1" >　　新密码：</label>
+          <input class="box" type="password" v-model="newPassword" />
+        </div>
+        <div>
+          <label class="message1" >确认新密码：</label>
+          <input class="box" type="password" v-model="newPassword2" />
+        </div>
+        <button class="editPwdButton" type="submit">修改</button>
+      </form>
     </div>
   </div>
 </template>
