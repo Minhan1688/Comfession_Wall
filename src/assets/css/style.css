@@ -135,8 +135,11 @@ h2 {
     font-weight: 500;
 }
 
-.infoPage {
+.avatarDiv {
     width: 600px;
+    padding: 0 0 0 20px;
+    display: flex;
+
 }
 
 .avatar {
@@ -308,11 +311,6 @@ button {
     
 }
 
-img {
-    width: 75px;
-    height: 75px;
-}
-
 .changeAvatar {
     display: flex;
     flex-direction: column; /* 修改头像部分垂直排列 */
@@ -355,7 +353,7 @@ img {
 }
 
 .package2 {
-    width: 750px;
+    width: 600px;
     height: 450px;
     margin: 10px 0 0;
     background:rgba(255, 255, 255, 0.15);
@@ -467,3 +465,29 @@ img {
     text-align: left;
 }
 
+.avatar-uploader .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+}
+
+.avatar-uploader .el-upload {
+    border: 1px dashed var(--el-border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: var(--el-transition-duration-fast);
+}
+  
+.avatar-uploader .el-upload:hover {
+    border-color: var(--el-color-primary);
+}
+  
+.el-icon.avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 100px;
+    height: 100px;
+    text-align: center;
+}

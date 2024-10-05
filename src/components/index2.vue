@@ -1,7 +1,11 @@
-<script setup>
+<script lang="ts" setup>
 import axios from "axios";
 import { ref,onMounted,computed } from "vue"
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
+
+import type { UploadProps } from 'element-plus'
 
         const router = useRouter();
         const newPostContent = ref('');
@@ -9,12 +13,32 @@ import { useRouter } from 'vue-router'
         const reports = ref([]);
         const showing = ref(0);
         const MyUserId = ref(localStorage.getItem("user_id"));
-        const MyUserType = ref(localStorage.getItem("user_type")==2 ? "管理员" : "学生");
+        const MyUserType = ref(Number(localStorage.getItem("user_type"))==2 ? "管理员" : "学生"); // 增加了函数Number()
         const MyUserName = ref(localStorage.getItem("user_name")); // @@@@@ 如何获取用户昵称
         const MyUserAccount = ref(localStorage.getItem("user_account")); //@@@@@ 获取用户账号
         const oldPassword = ref("");
         const newPassword = ref("");
         const newPassword2 = ref("");
+
+        const imageUrl = ref('')
+
+        const handleAvatarSuccess: UploadProps['onSuccess'] = (
+          response,
+          uploadFile
+        ) => {
+          imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+        }
+
+        const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+          if (rawFile.type !== 'image/jpeg') {
+            ElMessage.error('Avatar picture must be JPG format!')
+            return false
+          } else if (rawFile.size / 1024 / 1024 > 2) {
+            ElMessage.error('Avatar picture size can not exceed 2MB!')
+            return false
+          }
+          return true
+        }
 
         onMounted(()=>{
           getPost();
@@ -142,9 +166,16 @@ import { useRouter } from 'vue-router'
               return
             }
             if (newName.trim() === '') return;
-            axios.put("http://127.0.0.1:8080/api/user/revise-name", {
+            axios({
+              method: 'put',
+              url: 'http://127.0.0.1:8080/api/user/revise-name',
+              headers: {
+                'Authorization': 'YOUR_TOKEN', // @@@@@ 设置 Authorization 头
+              },
+              data: {
                 "account": MyUserAccount.value,
                 "name": newName
+              },
             }).then((res)=>{
               if (res.data.code === 200) {
                     alert("修改成功");
@@ -175,12 +206,18 @@ import { useRouter } from 'vue-router'
             alert('新密码不可与旧密码相同');
             return
           }
-          let data = {
-            "account": MyUserAccount.value, 
-            "new_password": newPassword.value,
-            "old_password": oldPassword.value
-          }
-          axios.put("http://127.0.0.1:8080/api/user/revise-password", data).then((res) => {
+          axios({
+            method: 'put',
+            url: 'http://127.0.0.1:8080/api/user/revise-password',
+            headers: {
+              'Authorization': 'YOUR_TOKEN', // @@@@@ 设置 Authorization 头
+            },
+            data: {
+              "account": MyUserAccount.value, 
+              "new_password": newPassword.value,
+              "old_password": oldPassword.value
+            },
+          }).then((res) => {
             if (res.data.code === 200 ) {
                 alert('修改密码成功，请重新登录');
                 router.replace('/')
@@ -188,8 +225,7 @@ import { useRouter } from 'vue-router'
             else {
                 alert(res.data.msg);
             };
-          }).catch((err) => { alert(err);})            
-          data
+          }).catch((err) => { alert(err);})
         }
 </script>
 
@@ -314,24 +350,32 @@ import { useRouter } from 'vue-router'
     <h2 class="title">个人资料</h2>
     <div class="package2">
       <div>
-        <div class="infoPage">
-          <label class="message1" >　　头像　</label>
-          <img class="avatar" src="../assets/example.jpg" /> <!-- 头像图片显示占位 -->
-          <button class="editButton" >修改</button>
+        <div class="avatarDiv">
+          <label class="message1" >　　　头像　</label>
+          <el-upload
+            class="avatar-uploader"
+            action="http://127.0.0.1:8080/api/user/revise-avatar"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+          >
+            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+          </el-upload>
         </div>
         <div>
           <form @submit.prevent="editName">
-            <label class="message1" >　　昵称：</label>
+            <label class="message1" >　　　　昵称：</label>
             <input class="box" type="text" v-model="MyUserName" readonly/>
             <button class="editButton" type="submit">修改</button>
           </form>
         </div>
         <div>
-          <label class="message1" >　　　ID：</label>
+          <label class="message1" >　　　　　ID：</label>
           <input class="fixedBox" type="text" v-model="MyUserId" readonly />
         </div>
         <div>
-          <label class="message1" >　　身份：</label>
+          <label class="message1" >　　　　身份：</label>
           <input class="fixedBox" type="text" v-model="MyUserType" readonly />
         </div>
       </div>
